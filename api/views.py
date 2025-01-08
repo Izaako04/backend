@@ -10,11 +10,11 @@ from datetime import datetime
 from firebase_admin import db
 
 class LandingAPI(APIView):
-    
+        
     name = 'Landing API'
 
     # Coloque el nombre de su colección en el Realtime Database
-    collection_name = 'COLLECTION_NAME_REALTIME_DATABASE'
+    collection_name = 'votes'
 
     def get(self, request):
 
@@ -41,3 +41,28 @@ class LandingAPI(APIView):
 	        
          # Devuelve el id del objeto guardado
          return Response({"id": new_resource.key}, status=status.HTTP_201_CREATED)
+    
+class LandingAPIDetail(APIView):
+
+    name = 'Landing Detail API'
+
+    collection_name = 'votes'
+
+    def get(self, request, pk):
+        ref = db.reference(f'{self.collection_name}/{pk}')
+        data = ref.get()
+        if data:
+            return Response(data, status=status.HTTP_200_OK)
+        else:
+            return Response({'error': 'Document not found'}, status=status.HTTP_404_NOT_FOUND)
+
+    def put(self, request, pk):
+        ref = db.reference(f'{self.collection_name}/{pk}')
+        # Validate request data here (e.g., required fields, data types)
+        ref.update(request.data)
+        return Response({'message': 'Document updated successfully'}, status=status.HTTP_200_OK)
+
+    def delete(self, request, pk):
+        ref = db.reference(f'{self.collection_name}/{pk}')
+        ref.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
